@@ -27,7 +27,7 @@ if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # setup connection to gpt-4o
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = ""
 
 llm = ChatOpenAI(
     model_name="gpt-4o",
