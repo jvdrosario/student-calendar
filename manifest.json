@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Syllabus to Calendar",
+    "version": "1.0",
+    "permissions": ["identity", "storage"],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "oauth2": {
+      "client_id": "362501526390-h1ms3rfvk7l06p5gl2jrgtbifbbaes0b.apps.googleusercontent.com",
+      "scopes": ["https://www.googleapis.com/auth/calendar"]
+    },
+    "background": {
+      "service_worker": "background.js"
+    }
+  }
