@@ -28,7 +28,6 @@ if platform.system() == 'Windows':
 
 # setup connection to gpt-4o
 os.environ["OPENAI_API_KEY"] = ""
-
 llm = ChatOpenAI(
     model_name="gpt-4o",
     temperature=0
@@ -146,7 +145,11 @@ async def extract_data_from_txt(filename):
             )
         )
 
-        return DataFrame(record.model_dump() for record in validated_data)
+        df = DataFrame(record.model_dump() for record in validated_data)
+
+        # print(df)
+
+        return df
     except Exception as e:
         print(f"Exception: {e}")
         return None

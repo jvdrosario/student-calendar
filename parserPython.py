@@ -12,6 +12,7 @@ def extract_text_from_pdf(pdf_path):
         print(f"Error: Could not load the document at {pdf_path}. {e}")
         return
 
+    result = ""
 
     # Get the total number of pages in the document
     num_pages = len(reader.pages)
@@ -27,14 +28,18 @@ def extract_text_from_pdf(pdf_path):
 
 
         # Print a header for the page
-        print(f"---- Page {i + 1} ----")
+        result += f"---- Page {i + 1} ----\n"
 
 
         # Output the extracted text to the console
         if page_text:
-            print(page_text)
+            result += page_text
         else:
             print(f"Error: No text found on page {i + 1}")
+
+    # print(result)
+
+    return result
 
 
 if __name__ == "__main__":

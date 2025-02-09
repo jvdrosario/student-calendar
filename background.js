@@ -1,7 +1,3 @@
-chrome.identity.getAuthToken({ interactive: true }, function (token) {
-  if (chrome.runtime.lastError) {
-    console.error(chrome.runtime.lastError);
-    return;
-  }
-  console.log("Token received:", token);
+chrome.runtime.onInstalled.addListener(function () {
+  console.log('Syllabus to Calendar extension installed.');
 });

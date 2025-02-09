@@ -1,16 +1,25 @@
 {
-    "manifest_version": 3,
-    "name": "Syllabus to Calendar",
-    "version": "1.0",
-    "permissions": ["identity", "storage"],
-    "action": {
-      "default_popup": "popup.html"
-    },
-    "oauth2": {
-      "client_id": "362501526390-h1ms3rfvk7l06p5gl2jrgtbifbbaes0b.apps.googleusercontent.com",
-      "scopes": ["https://www.googleapis.com/auth/calendar"]
-    },
-    "background": {
-      "service_worker": "background.js"
-    }
-  }
+  "manifest_version": 3,
+  "name": "Syllabus to Calendar",
+  "version": "1.0",
+  "permissions": ["identity", "storage", "activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": {
+    "script-src": "'self' https://apis.google.com",
+    "script-src-elem": "'self' https://apis.google.com",
+    "object-src": "'self'"
+  },
+  "oauth2": {
+    "client_id": "362501526390-7vh92smbie9m7jd1mh0q1o7j7qf5n6pf.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/calendar"]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "http://127.0.0.1:5000/"
+  ]
+}
+

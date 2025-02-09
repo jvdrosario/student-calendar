@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('dragover');
-
     handleFile(e.dataTransfer.files[0]);
   });
 
@@ -34,67 +33,91 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.removeChild(fileInput);
   });
 
-  addEventsButton.addEventListener('click', () => {
+  addEventsButton.addEventListener('click', async () => {
     if (!uploadedFile) {
-      alert('Please drag and drop a file first!');
+      alert('Please upload a file first!');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const text = e.target.result;
-      const events = parseSyllabus(text); 
-      
-      chrome.identity.getAuthToken({ interactive: true }, (token) => {
+    try {
+      const events = await parseSyllabus(uploadedFile);
+
+      chrome.identity.getAuthToken({ interactive: true, scopes: ["https://www.googleapis.com/auth/calendar"] }, (token) => {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError);
           return;
         }
-        events.forEach((event) => addEvent(token, event)); 
-        alert('Events added to Google Calendar!');
-      });
-    };
 
-    if (uploadedFile.type === 'application/pdf') {
-      reader.readAsArrayBuffer(uploadedFile);
-    } else {
-      reader.readAsText(uploadedFile);
+        // Initialize Google API client
+        gapi.load('client:auth2', async () => {
+          await gapi.auth2.init({
+            client_id: '362501526390-7vh92smbie9m7jd1mh0q1o7j7qf5n6pf.apps.googleusercontent.com'
+          });
+          gapi.client.setToken({ access_token: token });
+
+          // Add events to Google Calendar
+          events.forEach((event) => addEvent(event));
+        });
+      });
+    } catch (error) {
+      console.error('Error processing file:', error);
+      alert('Failed to process the file.');
     }
   });
 
-  function parseSyllabus () {
-    console.log("YRURURURURRR");
+  async function parseSyllabus(file) {
+    const formData = new FormData();
+    formData.append("pdf", file);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/extract_events', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const parsedData = await response.json();
+      console.log('Parsed events:', parsedData);
+
+      return parsedData.events || [];  // Ensure it returns an array
+    } catch (error) {
+      console.error('Error sending syllabus to backend:', error);
+      return [];
+    }
   }
 
-  function handleFile(file){
+  function handleFile(file) {
     if (file && (file.type === 'application/pdf' || file.type === 'text/plain')) {
       uploadedFile = file;
       dropZone.innerHTML = `<p>File ready: ${file.name}</p>`;
     } else {
-      alert('Please upload a PDF or text file.');
+      alert('Please upload a valid PDF or text file.');
     }
   }
+
+  function addEvent(event) {
+    const eventData = {
+      'summary': event.name,
+      'start': {
+        'date': `${event.month.toString().padStart(2, '0')}-${event.day.toString().padStart(2, '0')}`,
+      },
+      'end': {
+        'date': `${event.month.toString().padStart(2, '0')}-${event.day.toString().padStart(2, '0')}`,
+      },
+    };
+
+    gapi.client.calendar.events.insert({
+      'calendarId': 'primary',
+      'resource': eventData,
+    }).then((response) => {
+      console.log('Event created: ' + response.result.htmlLink);
+      alert('Event added to your Google Calendar!');
+    }).catch((error) => {
+      console.error('Error creating event:', error);
+      alert('Failed to add event to Google Calendar.');
+    });
+  }
 });
-
-// const progress = document.querySelector(".progress-done")
-// const input = document.querySelector(".input")
-// const maxInput = document.querySelector(".maxInput")
-// let total = 0;
-// let max = 0;
-
-// function changeWidth() {
-//     progress.style.width = `${(total / max) * 100}%`;
-//     progress.innerText = `${Math.ceil((total / max) * 100)}%`;
-// }
-
-// input.addEventListener("keyup", function ()  {
-//     total = parseInt(input.value, 10)
-//     changeWidth();
-// });
-
-// maxInput.addEventListener("keyup", function ()  {
-//     max = parseInt(maxInput.value, 10)
-//     changeWidth();
-    
-// });
-
